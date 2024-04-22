@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pingfin</title>
+	<link rel="stylesheet"
+		href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.4/dist/css/materialize.min.css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" >
+	<link rel="icon" type="image/x-icon" href="img/odisee-iconx256.png">
+	<style>/* Embedded style omdat de mod rewrite er voor zorgt dat het path naar de stylesheet onbeschikbaar is */
+		#output,pre{padding:.25em}pre{margin:.5rem 0 1rem;font-family:'Courier New',Courier,monospace}#output{border-top:1px solid var(--separator-color);border-right:1px solid var(--separator-color);border-left:1px solid var(--separator-color);box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.12),0 1px 5px 0 rgba(0,0,0,.2);margin-top:1em;margin-bottom:1em;width:90%;max-width:90%;overflow-x:auto;max-height:calc(100vh - 64px - 48px - 9em)}#modalContent .string,#output .string{color:green}#modalContent .number,#output .number{color:#ff8c00}#modalContent .boolean,#output .boolean{color:#00f}#modalContent .null,#output .null{color:#ff00ff}#modalContent .key,#output .key{color:red}#output th.gedraaid{display:inline-block;padding:0 0 10px;transform:rotateZ(270deg)}.material-icons{vertical-align:-10px}.btn.icon-left,.btn.icon-right{position:relative}.btn.icon-left{padding-left:calc(16px + 16px + 8px)}.btn.icon-right{padding-right:calc(16px + 16px + 8px)}.btn.icon-left i,.btn.icon-right i{position:absolute;font-size:16px}.btn.icon-left i{left:16px}.btn.icon-right i{right:16px}.material-icons.interactive{cursor:pointer}div.modal{max-height:80%;width:90%}.key{display:inline-block;color:#2196f3;font-weight:bolder;clear:left}.value{color:#4caf50}.type{color:#ff9800}
+	</style>
+	<!--<link rel="stylesheet" href="css/styles.css">-->
+</head>
+<body class="">
+	<div class="navbar-fixed">
+		<nav class="blue nav-extended">
+      <div class="nav-wrapper">
+			<a href="#" class="brand-logo">&nbsp;Pingfin 2024</a>
+			<a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+			<ul id="nav-mobile" class="right hide-on-med-and-down">
+				<li ><a class="active" href="#">Help</a></li>
+			</ul>
+      </div>
+		</nav>
+	</div>
+	<ul class="sidenav" id="mobile-demo">
+		<li class="active"><a href="help.html">Help</a></li>
+	</ul>
+
+	<div class="container">
+		<h1>Temporary Clearing Banking API</h1>
+		
+		<p>This documentation explains the API of the <span class="tooltipped blue-text" data-position="top" data-tooltip="i.e. to be used while your clearing bank is still in the process of creating their API. So, not to be used as a final solution.">temporary</span> API for the Pingfin 2024 project week. It is provided as an alternative for bank teams while they are waiting on their Clearing Bank team to provide them with an at least partially working API with at least one endpoint.</p>
+		<p>Bank teams can write their solution and test their code / on with this API during the period that their Clearing Banking teams are still developing their own Clearing Banking API. When a Clearing Bank team is ready (or ready enough) to support at least 2 bank teams with their API, those bank teams can then switch to that API. Please contact your teacher if you decide to take this step as a team.</p>
+		
+		<p>It is advised to communicate regularly with your Clearing Bank team while both you and they are actively developing, so you agree on a common scheme, procedures, error/status codes, etc.  Student solutions might differ from this solution, as long as all participating teams in a set of teams (clearing Bank + member banks) adhere to the same protocols and follow the minimum requirements of the documentation (see Toledo).</p>
+
+		<p>The preferred end-goal is for banking teams to develop their solution against/with the API of a Clearing Bank Team, not this temporary API.</p>
+		<ul class="collection">
+			<li class="collection-item">Requests to endpoints with a <i class="material-icons">security</i> icon need a Bearer token <i class="material-icons orange-text">vpn_key</i>.</li>
+			<li class="collection-item">Green endpoints (<i class="material-icons green-text">security</i>) use the <span class="green-text">GET</span> method.</li>
+			<li class="collection-item">Orange endpoints (<i class="material-icons orange-text">security</i> / <i class="material-icons orange-text">vpn_key</i>) use the <span class="orange-text">POST</span> method.</li>
+		</ul>
+		
+		<ul class="collapsible expandable">
+			<li>
+				<div class="collapsible-header"><i class="material-icons green-text">help</i>api/help/</div>
+				<div class="collapsible-body">
+					<p class="grey-text text-darken-4">Not really an endpoint, but it is what you are reading right now.</p>
+					<p class="grey-text text-darken-4">You did it! You found some help!</p>
+					<p class="grey-text text-darken-4">The base for all requests to this API is: <strong>https://stevenop.be/pingfin/api/</strong></p>
+					<p class="grey-text text-darken-4">The complete endpoint ends with a slash, unless otherwise noted.</p>
+					<p class="grey-text text-darken-4">Most request require a Bearer token. That token tells the API two important facts : <br>
+					who is doing the request (which bank/team) and <br>
+					that the request is authenticated if the token is valid.</p>
+				</div>
+			</li>
+      <li>
+			<div class="collapsible-header"><i class="material-icons orange-text">vpn_key</i>api/token/</div>
+			<div class="collapsible-body" id="token">
+				<table>
+					<thead>
+						<tr>
+							<th scope="col">Return format</th>
+							<th scope="col">Request method</th>
+							<th scope="col">Request headers</th>
+							<th scope="col">Request body</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><strong class="blue-text">JSON</strong></td>
+							<td><strong class="orange-text">POST</strong></td>
+							<td><strong class="grey-text">empty</strong></td>
+							<td><strong class="darkgrey-text">
+									<span class="key">bic</span> : YOUR_TEAM_ID <span class="type">String</span><br>
+									<span class="key">secret_key</span> : YOUR_TEAM_SECRET_KEY <span class="type">String</span><br>
+							</strong></td>
+						</tr>
+					</tbody>
+				</table>
+
+			<h4>When to call?</h4>
+			<p>To get a token to use in the header of the other API calls.</p>
+			<p>Most request to the API require a Bearer token. To get a bearer token, call the /token/ endpoint.</p>
+			<p>A Bearer token is valid for <strong class="blue-text">4 hours</strong>. Request a new one after it is no longer valid.</p>
+
+			<h4>Examples</h4>
+
+			<ul class="collapsible">
+            <li class="active">
+					<div class="collapsible-header"><i class="material-icons blue-text">code</i>Javascript Fetch Examplecode</div>
+					<div class="collapsible-body">
+<pre><code>
+// myBic and mySecretKey were created outside this codesnippet
+
+const requestOptions = {
+	method: "POST",
+	redirect: "follow",
+	body: JSON.stringify({ 'bic': myBic, 'secret_key': mySecretKey })
+};
+
+const response = await fetch("https://stevenop.be/pingfin/api/token/", requestOptions);
+
+if(!response.ok) {
+	console.log(`error: ${response.status}`);
+}
+
+const result = await response.json();
+
+if (result.token) {
+	console.log(result.token);
+} else {
+	console.log(result.message);
+}
+</code></pre>
+					</div>
+            </li>
+            <li class="active">
+					<div class="collapsible-header"><i class="material-icons blue-text">description</i>Response</div>
+					<div class="collapsible-body">
+<pre><code>
+{
+  "ok": true,
+  "status": 200,
+  "token": "ivzSnmr2TBjki5NdHQNmv1Q8mYI4Qdwr"
+}
+</code></pre>
+
+                  <p><strong>Note :</strong> the token in this example will not work in your code.</p>
+						<p><strong>Note :</strong> the JSON-response above is the "result" in the code example.</p>
+					</div>
+            </li>
+         </ul>
+
+			</div>
+      </li>
+      <li>
+			<div class="collapsible-header"><i class="material-icons green-text">security</i>api/banks/</div>
+			<div class="collapsible-body">
+				<table>
+					<thead>
+						<tr>
+							<th scope="col">Return format</th>
+							<th scope="col">Request method</th>
+							<th scope="col">Request headers</th>
+							<th scope="col">Request body</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><strong class="blue-text">JSON</strong></td>
+							<td><strong class="green-text">GET</strong></td>
+							<td><strong class="black-text">Authorization : Bearer Token</strong></td>
+							<td><strong class="grey-text">empty</strong></td>
+						</tr>
+					</tbody>
+				</table>
+
+				<h4>When to call?</h4>
+				<p>To get a list of the banks in your financial transaction system.</p>
+				<p>Use the Sneaker Network to get more information about their bankaccounts when you are ready to send Payment Orders.<br> Meaning : just go ask them ... nicely ;-) .</p>
+				<h4>Examples</h4>
+
+				<ul class="collapsible">
+					<li class="active">
+						<div class="collapsible-header"><i class="material-icons blue-text">code</i>Javascript Fetch Examplecode</div>
+						<div class="collapsible-body">
+<pre><code>
+// myToken was created outside of this codesnippet, after a sucessful token/ fetch request
+
+const myHeaders = new Headers();
+myHeaders.append("Authorization", `Bearer ${ myToken }`);
+
+const requestOptions = {
+	method: "GET",
+	headers: myHeaders,
+	redirect: "follow"
+};
+
+const response = await fetch("https://stevenop.be/pingfin/api/banks/", requestOptions);
+const result = await response.json();
+
+if(!result.ok) {
+	console.log(`Error: ${result.status} :  ${result.message}`);
+}
+
+console.log(result.data);
+
+</code></pre>
+              </div>
+            </li>
+            <li class="active">
+              <div class="collapsible-header"><i class="material-icons blue-text">description</i>Response</div>
+              <div class="collapsible-body">
+                  <pre>
+                    <code>
+{
+  "status": 200,
+  "data": [
+      {
+          "id": "ARSPBE22",
+          "name": "Argenta Belgium",
+          "members": "Aziza, Chris, Karim, Mohamed, Nico. You can find us in classroom 4306."
+      },
+      {
+          "id": "BBRUBEBB",
+          "name": "ING België NV",
+          "members": "Adil, Hajar, Elias, Rohan, Stijn,  Youssri. If you want more info, we're in 5306."
+      },
+      {
+          "id": "GKCCBEBB",
+          "name": "Belfius Bank België",
+          "members": "Adam, Anas, Farah, Mehmet, Robin, Zakaria. Come to B02-17 if you want to see us. If you want some bankaccounts, 
+we just might be bribed with some Pizza. No Pineapple please!"
+      }
+  ]
+}
+                    </code>
+                  </pre>
+              </div>
+            </li>
+          </ul>
+
+        </div>
+      </li>
+
+		<li>
+			<div class="collapsible-header" id="banksPost"><i class="material-icons orange-text">security</i>api/banks/</div>
+			<div class="collapsible-body">
+			  <table>
+				 <thead>
+					<tr>
+					  <th scope="col">Return format</th>
+					  <th scope="col">Request method</th>
+					  <th scope="col">Request headers</th>
+					  <th scope="col">Request body</th>
+					</tr>
+				 </thead>
+				 <tbody>
+					<tr>
+					  <td><strong class="blue-text">JSON</strong></td>
+					  <td><strong class="orange-text">POST</strong></td>
+					  <td><strong class="black-text">Authorization : Bearer Token</strong></td>
+					  <td><strong class="darkgrey-text">
+						<span class="key">name</span> : YOUR_NEW_BANKNAME : <span class="type">String</span><br>
+						<span class="key">members</span> : YOUR_NEW_TEAMMEMBER_NAMES <span class="type">String</span><br>
+					</strong></td>
+					</tr>
+				 </tbody>
+			  </table>
+ 
+			  <h4>When to call?</h4>
+			  <p>To update the name and teammembers of your team (bank).</p>
+			  <p>This just might be (ab)used to add additional information like the location your team can be found if others have some questions for your team.</p>
+ 
+			  <h4>Examples</h4>
+ 
+			  <ul class="collapsible">
+				 <li class="active">
+					<div class="collapsible-header"><i class="material-icons blue-text">code</i>Javascript Fetch Examplecode</div>
+					<div class="collapsible-body">
+<pre><code>
+// myToken was created outside of this codesnippet, after a sucessful token/ fetch request
+// myTeamMembers and myTeamName were created outside of this codesnippet
+
+const myHeaders = new Headers();
+myHeaders.append("Authorization", `Bearer ${ myToken }`);
+
+const requestOptions = {
+	method: "POST",
+	headers: myHeaders,
+	redirect: "follow",
+	body: JSON.stringify({ 'name': myTeamName, 'members': myTeamMembers })
+};
+
+const response = await fetch("https://stevenop.be/pingfin/api/banks/", requestOptions);
+const result = await response.json();
+
+if(!result.ok) {
+	console.log(`Error: ${ result.status } :  ${ result.message }`);
+}
+
+console.log(result.data);
+</code></pre>
+					</div>
+				 </li>
+				 <li class="active">
+					<div class="collapsible-header"><i class="material-icons blue-text">description</i>Response</div>
+					<div class="collapsible-body">
+						 <pre>
+							<code>
+{
+	"message":"Bank data successfully changed. Enjoy the Project Week!",
+	"status":200, 
+	"ok":true
+}
+							</code>
+						 </pre>
+					</div>
+				 </li>
+			  </ul>
+ 
+			</div>
+		 </li>
+
+      <li>
+        <div class="collapsible-header"><i class="material-icons orange-text">security</i>api/po_in/</div>
+        <div class="collapsible-body">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Return format</th>
+                <th scope="col">Request method</th>
+                <th scope="col">Request headers</th>
+                <th scope="col">Request body</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong class="blue-text">JSON</strong></td>
+                <td><strong class="orange-text">POST</strong></td>
+                <td><strong class="black-text">Authorization : Bearer Token</strong></td>
+                <td><strong class="black-text"><span class="key">data</span> : A list of PO's <span class="type">[ ]</span></strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>When to call?</h4>
+          <p>To send a list of one or more outgoing Payment Orders (PO) to the CB.</p>
+
+			 <ul class="collapsible">
+				<li class="active">
+				  <div class="collapsible-header"><i class="material-icons blue-text">code</i>Javascript Fetch Examplecode</div>
+				  <div class="collapsible-body">
+<pre><code>
+// myToken was created outside of this codesnippet, after a sucessful token/ fetch request
+// poList was created outside of this codesnippet and is an Array containing at least 1 Payment Order.
+
+const myHeaders = new Headers();
+myHeaders.append("Authorization", `Bearer ${ myToken }`);
+
+const requestOptions = {
+  method: "POST",
+  headers: myHeaders,
+  redirect: "follow",
+  body: JSON.stringify({ 'data': poList })
+};
+
+const response = await fetch("https://stevenop.be/pingfin/api/po_in/", requestOptions);
+const result = await response.json();
+
+if(!result.ok) {
+  console.log(`Error: ${ result.status } :  ${ result.message }`);
+}
+
+console.log(result.data);
+</code></pre>
+				  </div>
+				</li>
+				<li class="active">
+					<div class="collapsible-header"><i class="material-icons blue-text">code</i>Request body pseudo examplecode</div>
+					<div class="collapsible-body">
+<pre><code>
+{
+	data : [
+		{
+			po_id : random_generated_ID_by_OB,
+			po_amount : PO_amount,
+			po_message : PO_message,
+			po_datetime : data_and_time_PO_created,
+			ob_id : BIC_code_of_OB,
+			oa_id : IBAN_of_OA,
+			ob_code : code_generated_by_OB,
+			ob_datetime : date_and_time_of_most_recent_OB_action,
+			bb_id : BIC_code_of_BB,
+			ba_id : IBAN_of_BA
+		},
+		...
+	]
+}
+</code></pre>
+				<p><strong>Note : </strong> not all of the Payment Order message format fields are included in this call. For example, it is not logical to include the bb_code, bb_timestamp, cb_code or cb_timestamp as neither the Clearing Bank nor the Beneficiary Bank processed the PO at this point. If you do include them, they will be ignored.</p>
+					</div>
+				 </li>
+				<li class="active">
+				  <div class="collapsible-header"><i class="material-icons blue-text">description</i>Response</div>
+				  <div class="collapsible-body">
+<pre><code>
+{
+	"status":200, 
+	"data":"Result: 22 Payment Orders Processed.", 
+	"ok":true
+}
+</code></pre>
+				  </div>
+				</li>
+			 </ul>
+
+
+
+        </div>
+      </li>
+      <li>
+        <div class="collapsible-header"><i class="material-icons green-text">security</i>api/po_out/</div>
+        <div class="collapsible-body">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Return format</th>
+                <th scope="col">Request method</th>
+                <th scope="col">Request headers</th>
+                <th scope="col">Request body</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong class="blue-text">JSON</strong></td>
+                <td><strong class="green-text">GET</strong></td>
+                <td><strong class="black-text">Authorization : Bearer Token</strong></td>
+                <td><strong class="grey-text">empty</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>When to call?</h4>
+          <p>As a member bank : to get a list of 0, 1 or more incoming Payment Orders (PO) from the CB.</p>
+          <p><strong>Note : </strong> each PO can only be fetched once. Once a PO is fetched, it is removed from po_out. Work with other teams to generate PO's for your bank if you need to test your code and logic.</p>
+			 <p class="yellow lighten-3">To assist with testing, you can send the request instead to <strong class="blue-text">api/po_out/test/true</strong>. A request to <strong class="blue-text">api/po_out/test/true</strong> will only retrieve data, won't log, nor delete.<br>
+				<strong>Note : </strong> there is no trailing /
+			</p>
+
+			 <ul class="collapsible">
+				<li class="active">
+				  <div class="collapsible-header"><i class="material-icons blue-text">code</i>Javascript Fetch Examplecode</div>
+				  <div class="collapsible-body">
+<pre><code>
+// myToken was created outside of this codesnippet, after a sucessful token/ fetch request
+
+const myHeaders = new Headers();
+myHeaders.append('Content-Type', 'application/json');
+myHeaders.append("Authorization", `Bearer ${ myToken }`);
+
+const requestOptions = {
+	method: "GET",
+	headers: myHeaders,
+	redirect: "follow",
+};
+
+const response = await fetch("https://stevenop.be/pingfin/api/po_out/", requestOptions);
+const result = await response.json();
+
+if(!result.ok) {
+	console.log(`Error: ${ result.status } :  ${ result.message }`);
+}
+
+console.log(result.data);
+</code></pre>
+				  </div>
+				</li>
+				<li class="active">
+				  <div class="collapsible-header"><i class="material-icons blue-text">description</i>Response</div>
+				  <div class="collapsible-body">
+<pre><code>
+{
+	"status": 200,
+	"ok": true,
+	"data" : [
+		{
+			po_id : random_generated_ID_by_OB,
+			po_amount : PO_amount,
+			po_message : PO_message,
+			po_datetime : data_and_time_PO_created,
+			ob_id : BIC_code_of_OB,
+			oa_id : IBAN_of_OA,
+			ob_code : code_generated_by_OB,
+			ob_datetime : date_and_time_of_most_recent_OB_action,
+			bb_id : BIC_code_of_BB,
+			ba_id : IBAN_of_BA
+		},
+		...
+	]
+}
+</code></pre>
+				  </div>
+				</li>
+			 </ul>
+
+
+
+        </div>
+      </li>
+      <li>
+        <div class="collapsible-header"><i class="material-icons orange-text">security</i>api/ack_in/</div>
+        <div class="collapsible-body">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Return format</th>
+                <th scope="col">Request method</th>
+                <th scope="col">Request headers</th>
+                <th scope="col">Request body</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong class="blue-text">JSON</strong></td>
+                <td><strong class="orange-text">POST</strong></td>
+                <td><strong class="black-text">Authorization : Bearer Token</strong></td>
+                <td><strong class="black-text"><span class="key">data</span> : A list of PO's (Acknowledgements) <span class="type">[ ]</span></strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>When to call?</h4>
+          <p>As a BB : to send a list of one or more outgoing Acknowledgements (PO's) to the CB.</p>
+			 <p>Make sure that you have marked them with a correct bb_code and bb_datetim before you send the request.</p>
+
+			 <ul class="collapsible">
+				<li class="active">
+				  <div class="collapsible-header"><i class="material-icons blue-text">code</i>Javascript Fetch Examplecode</div>
+				  <div class="collapsible-body">
+<pre><code>
+// myToken was created outside of this codesnippet, after a sucessful token/ fetch request
+// ackList was created outside of this codesnippet and is an Array containing at least 1 Payment Order.
+
+const myHeaders = new Headers();
+myHeaders.append("Authorization", `Bearer ${ myToken }`);
+
+const requestOptions = {
+  method: "POST",
+  headers: myHeaders,
+  redirect: "follow",
+  body: JSON.stringify({ 'data': ackList })
+};
+
+const response = await fetch("https://stevenop.be/pingfin/api/ack_in/", requestOptions);
+const result = await response.json();
+
+if(!result.ok) {
+  console.log(`Error: ${ result.status } :  ${ result.message }`);
+}
+
+console.log(result.data);
+</code></pre>
+				  </div>
+				</li>
+				<li class="active">
+					<div class="collapsible-header"><i class="material-icons blue-text">code</i>Request body pseudo examplecode</div>
+					<div class="collapsible-body">
+<pre><code>
+{
+	data : [
+		{
+			po_id : random_generated_ID_by_OB,
+			po_amount : PO_amount,
+			po_message : PO_message,
+			po_datetime : data_and_time_PO_created,
+			ob_id : BIC_code_of_OB,
+			oa_id : IBAN_of_OA,
+			ob_code : code_generated_by_OB,
+			ob_datetime : date_and_time_of_most_recent_OB_action,
+			bb_id : BIC_code_of_BB,
+			ba_id : IBAN_of_BA,
+			cb_code : code_generated_by_CB,
+			cb_datetime : date_and_time_of_most_recent_CB_action,
+			bb_code : code_generated_by_BB,
+			bb_datetime : date_and_time_of_most_recent_BB_action,
+		},
+		...
+	]
+}
+</code></pre>
+				<p><strong>Note : </strong> not all of the Payment Order message format fields are included in this call. For example, it is not logical to include the bb_code, bb_timestamp, cb_code or cb_timestamp as neither the Clearing Bank nor the Beneficiary Bank processed the PO at this point. If you do include them, they will be ignored.</p>
+					</div>
+				 </li>
+				<li class="active">
+				  <div class="collapsible-header"><i class="material-icons blue-text">description</i>Response</div>
+				  <div class="collapsible-body">
+<pre><code>
+{
+	"status":200, 
+	"data":"Result: 14 Acknowledgements Processed.", 
+	"ok":true
+}
+</code></pre>
+				  </div>
+				</li>
+			 </ul>
+        </div>
+      </li>
+      <li>
+        <div class="collapsible-header"><i class="material-icons green-text">security</i>api/ack_out/</div>
+        <div class="collapsible-body">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Return format</th>
+                <th scope="col">Request method</th>
+                <th scope="col">Request headers</th>
+                <th scope="col">Request body</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong class="blue-text">JSON</strong></td>
+                <td><strong class="green-text">GET</strong></td>
+                <td><strong class="black-text">Authorization : Bearer Token</strong></td>
+                <td><strong class="grey-text">empty</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>When to call?</h4>
+          <p>As a member bank : to get a list of one or more incoming Acknowledgements (PO) from the CB.</p>
+       	 <p><strong>Note : </strong> each PO/ACK can be fetched just once. Once an ACK is fetched, it is removed from ack_out. Work with other teams to generate ACK's for your bank if you need to test your code and logic.</p>
+			 <p class="yellow lighten-3">To assist with testing, you can send the request instead to <strong class="blue-text">api/ack_out/test/true</strong>. A request to <strong class="blue-text">api/ack_out/test/true</strong> will only retrieve data, won't log, nor delete.<br>
+				<strong>Note : </strong> there is no trailing /</p>
+
+			 <ul class="collapsible">
+				<li class="active">
+				  <div class="collapsible-header"><i class="material-icons blue-text">code</i>Javascript Fetch Examplecode</div>
+				  <div class="collapsible-body">
+<pre><code>
+// myToken was created outside of this codesnippet, after a sucessful token/ fetch request
+
+const myHeaders = new Headers();
+myHeaders.append('Content-Type', 'application/json');
+myHeaders.append("Authorization", `Bearer ${ myToken }`);
+
+const requestOptions = {
+	method: "GET",
+	headers: myHeaders,
+	redirect: "follow",
+};
+
+const response = await fetch("https://stevenop.be/pingfin/api/ack_out/", requestOptions);
+const result = await response.json();
+
+if(!result.ok) {
+	console.log(`Error: ${ result.status } :  ${ result.message }`);
+}
+
+console.log(result.data);
+</code></pre>
+				  </div>
+				</li>
+				<li class="active">
+				  <div class="collapsible-header"><i class="material-icons blue-text">description</i>Response</div>
+				  <div class="collapsible-body">
+<pre><code>
+{
+	"status": 200,
+	"ok": true,
+	"data" : [
+		{
+			po_id : random_generated_ID_by_OB,
+			po_amount : PO_amount,
+			po_message : PO_message,
+			po_datetime : data_and_time_PO_created,
+			ob_id : BIC_code_of_OB,
+			oa_id : IBAN_of_OA,
+			ob_code : code_generated_by_OB,
+			ob_datetime : date_and_time_of_most_recent_OB_action,
+			bb_id : BIC_code_of_BB,
+			ba_id : IBAN_of_BA,
+			cb_code : code_generated_by_CB,
+			cb_datetime : date_and_time_of_most_recent_CB_action,
+			bb_code : code_generated_by_BB,
+			bb_datetime : date_and_time_of_most_recent_BB_action,
+
+		},
+		...
+	]
+}
+</code></pre>
+				  </div>
+				</li>
+			 </ul>
+
+
+
+        </div>
+      </li>
+
+		<li>
+			<div class="collapsible-header"><i class="material-icons green-text">dataset</i>api/stats/type/log</div>
+			<div class="collapsible-body">
+			  <table>
+				 <thead>
+					<tr>
+					  <th scope="col">Return format</th>
+					  <th scope="col">Request method</th>
+					  <th scope="col">Request headers</th>
+					  <th scope="col">Request body</th>
+					</tr>
+				 </thead>
+				 <tbody>
+					<tr>
+					  <td><strong class="blue-text">JSON</strong></td>
+					  <td><strong class="green-text">GET</strong></td>
+					  <td><strong class="black-text">Authorization : Bearer Token</strong></td>
+					  <td><strong class="grey-text">empty</strong></td>
+					</tr>
+				 </tbody>
+			  </table>
+			  <h4>When to call?</h4>
+			  <p>As a member bank : to get a list of the most recent logs of what happened on this API.</p>
+			  <p><strong>Note : </strong> provided AS - IS. You might take a look a this to see what the API did with your request. But keep in mind that it reports requests from all teams, not only your calls..</p>
+			  <p>The exact endpoint for this call is <strong class="key">https://stevenop.be/pingfin/api/stats/type/log</strong></p>
+			  <h4>Examples</h4>
+ 
+			  <ul class="collapsible">
+				 <li class="active">
+					<div class="collapsible-header"><i class="material-icons blue-text">code</i>Javascript Fetch</div>
+					<div class="collapsible-body">
+<pre><code>
+// myToken was created outside of this codesnippet, after a sucessful token/ fetch request
+
+const myHeaders = new Headers();
+myHeaders.append('Content-Type', 'application/json');
+myHeaders.append("Authorization", `Bearer ${ myToken }`);
+
+const requestOptions = {
+	method: "GET",
+	headers: myHeaders,
+	redirect: "follow",
+};
+
+const response = await fetch("https://stevenop.be/pingfin/api/stats/type/log", requestOptions);
+const result = await response.json();
+
+if(!result.ok) {
+	console.log(`Error: ${ result.status } :  ${ result.message }`);
+}
+
+console.log(result.data);
+</code></pre>
+					</div>
+				</li>
+				<li class="active">
+					<div class="collapsible-header"><i class="material-icons blue-text">description</i>Response</div>
+					<div class="collapsible-body">The response follows the same structure as a request of ACK, but each element has the addedd fields "id","type" and "message".
+<pre><code>
+	{
+		"status": 200,
+		"ok": true,
+		"data" : [
+			{
+				id : log_id,
+				type : type_of_action_logged,
+				message : log_message,
+				po_id : random_generated_ID_by_OB,
+				po_amount : PO_amount,
+				po_message : PO_message,
+				po_datetime : data_and_time_PO_created,
+				ob_id : BIC_code_of_OB,
+				oa_id : IBAN_of_OA,
+				ob_code : code_generated_by_OB,
+				ob_datetime : date_and_time_of_most_recent_OB_action,
+				bb_id : BIC_code_of_BB,
+				ba_id : IBAN_of_BA,
+				cb_code : code_generated_by_CB,
+				cb_datetime : date_and_time_of_most_recent_CB_action,
+				bb_code : code_generated_by_BB,
+				bb_datetime : date_and_time_of_most_recent_BB_action,
+	
+			},
+			...
+		]
+	}
+	</code></pre>
+					</div>
+				</li>
+			</ul>
+
+
+			</div>
+		 </li>
+
+    </ul>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.4/dist/js/materialize.min.js"></script>
+  <script>
+	// Embedded script because of http rewrite rules on the server.
+	// Note for students : It's still a better practice not to use this if you can avoid it.
+	// While you are here, glad you found this little 🗿🥚
+
+	// Sidenav
+	const sidenavInstances = M.Sidenav.init(document.querySelectorAll('.sidenav'), { edge: 'left', draggable: 'true' });
+
+	const tabs = M.Tabs.init(document.querySelector('#mdTabs'), {
+		onShow: function () { /* TODO */ },
+		duration: 16
+	});
+
+	const collapsibleInstances = M.Collapsible.init(document.querySelectorAll('.collapsible'), {
+		// specify options here
+		accordion: false
+	});
+
+   var instances = M.Tooltip.init(document.querySelectorAll('.tooltipped'), {
+      // no specific options provided
+	});
+  </script>
+</body>
+</html>
